@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Diffie-Hellman Key Exchange</title>
+</head>
+<body>
+    <h2>Diffie-Hellman Key Exchange</h2>
+    
+    <p>Enter your private key (Alice):</p>
+    <input type="number" id="alicePrivate" />
+    <button onclick="computeKey()">Generate Shared Key</button>
+
+    <h3>Results:</h3>
+    <p><strong>Public values:</strong> Prime (p) = 23, Primitive root (g) = 5</p>
+    <p id="bobPublicKey"></p>
+    <p id="alicePublicKey"></p>
+    <p id="sharedKeyAlice"></p>
+    <p id="sharedKeyBob"></p>
+
+    <script>
+        // Modular exponentiation (a^b mod p)
+        function modPow(base, exponent, mod) {
+            let result = 1;
+            base = base % mod;
+            while (exponent > 0) {
+                if (exponent % 2 === 1)
+                    result = (result * base) % mod;
+                exponent = Math.floor(exponent / 2);
+                base = (base * base) % mod;
+            }
+            return result;
+        }
+
+        function computeKey() {
+            const p = 23;  // Prime
+            const g = 5;   // Primitive root
+
+            const alicePrivate = parseInt(document.getElementById("alicePrivate").value);
+            const bobPrivate = Math.floor(Math.random() * 10) + 1;
+
+            const alicePublic = modPow(g, alicePrivate, p);
+            const bobPublic = modPow(g, bobPrivate, p);
+
+            const sharedKeyAlice = modPow(bobPublic, alicePrivate, p);
+            const sharedKeyBob = modPow(alicePublic, bobPrivate, p);
+
+            document.getElementById("bobPublicKey").innerText = "Bob's Public Key: " + bobPublic;
+            document.getElementById("alicePublicKey").innerText = "Alice's Public Key: " + alicePublic;
+            document.getElementById("sharedKeyAlice").innerText = "Shared Key (Alice computes): " + sharedKeyAlice;
+            document.getElementById("sharedKeyBob").innerText = "Shared Key (Bob computes): " + sharedKeyBob;
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+<!-- Let’s use:
+
+p = 23, g = 5
+
+Alice chooses a = 6, Bob chooses b = 15
+
+Step-by-step:
+Alice computes: A = 5^6 mod 23 = 15625 mod 23 = 8
+
+Bob computes: B = 5^15 mod 23 = 30517578125 mod 23 = 2
+
+Exchange:
+
+Alice sends 8, Bob sends 2
+
+Now:
+
+Alice computes: K = 2^6 mod 23 = 64 mod 23 = 18
+
+Bob computes: K = 8^15 mod 23 = big number mod 23 = 18
+
+Shared key = 18 -->
